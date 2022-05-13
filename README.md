@@ -1,14 +1,19 @@
-# cesium_utils
-some utils of build cesium program🧰
+## cesium_utils
 
-### base config
+some utils of build cesium program 🧰
+
+### dependencies && devDependencies
 
 1. cesium-1.93 version
-    - lib
+
+   - node_modules
+   - lib
 
 2. webpack && webpack-cli
-    - webpack-config.config.js
 
-3. eslint && eslint-config-standard && eslint-plugin-import -D
-    - .eslintrc
-    - .eslintignore
+   - webpack-config.config.js
+
+3. eslint
+
+   - .eslintrc.js (style by eslint-config-standard)
+   - .eslintignore
