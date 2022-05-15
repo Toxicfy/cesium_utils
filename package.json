@@ -2,7 +2,7 @@
   "name": "cesium_utils",
   "version": "1.0.0",
   "author": "fy",
-  "description": "some utils of build cesium program🧰",
+  "description": "some utils of build cesium program 🧰",
   "main": "index.js",
   "directories": {
     "lib": "lib"

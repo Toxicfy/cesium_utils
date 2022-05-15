@@ -2,7 +2,11 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es5",
-    "sourceMap": true
+    "sourceMap": true,
+    "typeRoots": [
+      "node_modules/@types",
+      "@types"
+    ]
   },
   "include": ["src", "**/*.ts"],
   "exclude": ["node_modules"]
