@@ -11,12 +11,13 @@ export default class CreateGeometry {
 
   /**
    * 添加点
-   * @param position {Cesium.Cartesian3} 笛卡尔坐标
-   * @param color {Cesium.Color} 颜色
-   * @param pixelSize {number} 大小
-   * @param layer {Cesium.EntityCollection} 添加到的图层
+   * @param position 坐标信息
+   * @param color 颜色
+   * @param pixelSize 大小
+   * @param layer 添加到的图层
+   * @returns 点对象
    */
-  addPoint (position, color = Cesium.Color.DODGERBLUE, pixelSize = 8, layer = this.viewer.entities) {
+  addPoint (position: Cesium.Cartesian3, color = Cesium.Color.DODGERBLUE, pixelSize = 8, layer = this.viewer.entities) {
     this.pointArr.push(position)
 
     return layer.add({
@@ -30,11 +31,11 @@ export default class CreateGeometry {
 
   /**
    * 添加线段
-   * @param color {Cesium.Color} 线的颜色
-   * @param width {number} 线的宽度
-   * @param showDistance {boolean} 是否展示距离
-   * @param layer {Cesium.EntityCollection} 添加到的图层
-   * @return [] 包含 lineEntity 及 labelEntity(null)
+   * @param color 线的颜色
+   * @param width 线的宽度
+   * @param showDistance 是否展示距离
+   * @param layer 添加到的图层
+   * @return {Cesium.Entity[]} 添加的entities —— (lineEntity) 及 (labelEntity | null)
    */
   addLine (color: Cesium.Color = Cesium.Color.DODGERBLUE, width: number = 2, showDistance: boolean, layer: Cesium.EntityCollection = this.viewer.entities): Cesium.Entity[] {
     const length = this.pointArr.length
@@ -57,7 +58,6 @@ export default class CreateGeometry {
     // @ts-ignore 给 line 加一个 _length 进行访问
     line._length = lineLength
 
-    // crate label of length
     let label: Cesium.Entity | null
     if (showDistance) {
       label = layer.add({
@@ -83,9 +83,17 @@ export default class CreateGeometry {
     return [line, label]
   }
 
+  /**
+   * 计算点之间的空间距离
+   * @param positions 点的集合
+   * @returns 距离值
+   */
   getDistance (positions: Cesium.Cartesian3[]): number {
     let distance = 0
+
+    // 测地线，空间中两个位置的 “最短距离”
     const geodesic = new Cesium.EllipsoidGeodesic()
+
     for (let i = 0; i < positions.length - 1; i++) {
       const pointOneGraphic = Cesium.Cartographic.fromCartesian(positions[i])
       const pointTwoGraphic = Cesium.Cartographic.fromCartesian(positions[i + 1])
@@ -93,6 +101,7 @@ export default class CreateGeometry {
       geodesic.setEndPoints(pointOneGraphic, pointTwoGraphic)
       let s = geodesic.surfaceDistance
 
+      // 三角形求斜边
       s = Math.sqrt(Math.pow(s, 2) + Math.pow(pointOneGraphic.height - pointTwoGraphic.height, 2))
       distance += s
     }

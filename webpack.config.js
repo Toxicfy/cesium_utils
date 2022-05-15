@@ -3,10 +3,10 @@ const webpack = require('webpack')
 // const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
   entry: './src/index.ts',
   watch: true,
-  // devtool: 'source-map',
+  devtool: 'source-map',
   output: {
     library: 'Map',
     libraryTarget: 'umd',
