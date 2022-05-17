@@ -1,6 +1,8 @@
 import * as Cesium from 'cesium'
 import BaseLayer from './BaseLayer'
 import TilesetLayer from './TilesetLayer'
+import layerType from './layerType'
+
 class Layer {
   protected viewer: Cesium.Viewer
   private TilesetLayer = TilesetLayer
@@ -11,7 +13,7 @@ class Layer {
 
   addLayer (layer: BaseLayer): object {
     switch (layer?.type) {
-      case 'TilesetLayer' : { // 加载 tilesetLayer
+      case layerType.TILESET_LAYER : { // 加载 tilesetLayer
         return this.viewer.scene.primitives.add(layer._source)
       }
 
@@ -22,7 +24,7 @@ class Layer {
 
   removeLayer (layer: BaseLayer): boolean {
     switch (layer?.type) {
-      case 'TilesetLayer' : {
+      case layerType.TILESET_LAYER : {
         return this.viewer.scene.primitives.remove(layer._source)
       }
 

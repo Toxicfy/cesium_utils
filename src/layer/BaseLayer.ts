@@ -12,10 +12,6 @@ class BaseLayer {
   get type () : string {
     return this._layerType
   }
-
-  set type (value: string) {
-    this._layerType = value
-  }
 }
 
 export default BaseLayer
