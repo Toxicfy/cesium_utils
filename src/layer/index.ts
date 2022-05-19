@@ -5,16 +5,20 @@ import layerType from './layerType'
 
 class Layer {
   protected viewer: Cesium.Viewer
-  private TilesetLayer = TilesetLayer
+  private TilesetLayer: object
 
   constructor (viewer: Cesium.Viewer) {
     this.viewer = viewer
+    this.TilesetLayer = TilesetLayer
   }
 
-  addLayer (layer: BaseLayer): object {
+  addLayer (layer: BaseLayer): BaseLayer {
     switch (layer?.type) {
       case layerType.TILESET_LAYER : { // 加载 tilesetLayer
-        return this.viewer.scene.primitives.add(layer._source)
+        (layer as TilesetLayer).readyPromise.then(() => {
+          this.viewer.scene.primitives.add(layer._source)
+        })
+        return layer
       }
 
       default :

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,21 +8,35 @@
     <title>Document</title>
     <link rel="stylesheet" href="./lib/Widgets/widgets.css">
     <style>
-        html, body, #map-container {
-            margin: 0; 
-            padding:0;
+        html,
+        body,
+        #map-container {
+            margin: 0;
+            padding: 0;
             height: 100%;
             width: 100%;
         }
     </style>
 </head>
+
 <body>
     <script src="./dist/main.min.js"></script>
     <div id="map-container"></div>
 
     <script>
         Map.setBaseUrl('./lib')
-        const map = new Map('map-container',{})
+        const map = new Map('map-container', {})
+
+        {
+            // 加载 tileset 并进行数据贴地
+            const tilesetLayer = new map.layer.TilesetLayer("https://earthsdk.com/v/last/Apps/assets/dayanta/tileset.json")
+            map.layer.addLayer(tilesetLayer)
+
+            tilesetLayer.clampToGround()
+            map.zoomTo(tilesetLayer._source)
+        }
+
     </script>
 </body>
+
 </html>

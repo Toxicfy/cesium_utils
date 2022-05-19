@@ -1,12 +1,15 @@
 import { defaultViewerOptions } from './config/config'
 import * as Cesium from 'cesium'
 import CreateGeometry from './createGeometry'
+import Layer from './layer/index'
 
 /**
  * Main Entry
  */
 class Map extends Cesium.Viewer {
   createGeometry: CreateGeometry
+  layer: Layer
+
   constructor (container = 'map-container', options: Cesium.Viewer.ConstructorOptions = {}) {
     super(container, Object.assign({}, defaultViewerOptions, options))
     // 初始化 viewer 的一些配置项
@@ -21,6 +24,7 @@ class Map extends Cesium.Viewer {
   // 初始化各种属性方法
   _initCustomProperty () {
     this.createGeometry = new CreateGeometry(this) // geometry entity 方法集合
+    this.layer = new Layer(this)
   }
 
   // 获取资源目录地址
