@@ -1,4 +1,4 @@
-import { defaultViewerOptions } from './config/config'
+import { defaultViewerOptions } from './config'
 import * as Cesium from 'cesium'
 import CreateGeometry from './createGeometry'
 import Layer from './layer/index'
