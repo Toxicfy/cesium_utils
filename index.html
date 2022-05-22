@@ -11,6 +11,7 @@
         html,
         body,
         #map-container {
+            position: relative;
             margin: 0;
             padding: 0;
             height: 100%;
@@ -36,6 +37,14 @@
             map.zoomTo(tilesetLayer._source)
         }
 
+        // createTips
+        {
+            const handler = new map.earth.ScreenSpaceEventHandler(map.canvas)
+            handler.setInputAction(e => {
+                const position = e.endPosition
+                map.toolTip.show(position, '鼠标提示')
+            }, map.earth.ScreenSpaceEventType.MOUSE_MOVE)
+        }
     </script>
 </body>
 
