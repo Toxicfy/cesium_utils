@@ -28,8 +28,8 @@
         Map.setBaseUrl('./lib')
         const map = new Map('map-container', {})
 
+        // 加载 tileset 并进行数据贴地
         {
-            // 加载 tileset 并进行数据贴地
             const tilesetLayer = new map.layer.TilesetLayer("https://earthsdk.com/v/last/Apps/assets/dayanta/tileset.json")
             map.layer.addLayer(tilesetLayer)
 
@@ -37,13 +37,23 @@
             map.zoomTo(tilesetLayer._source)
         }
 
-        // createTips
+        // 操作 toolTip
         {
             const handler = new map.earth.ScreenSpaceEventHandler(map.canvas)
+            map.toolTip.setContent('这是一个鼠标提示')
             handler.setInputAction(e => {
                 const position = e.endPosition
-                map.toolTip.show(position, '鼠标提示')
+                map.toolTip.show(position)
             }, map.earth.ScreenSpaceEventType.MOUSE_MOVE)
+
+            const hide = () => {
+                handler.destroy()
+                map.toolTip.hide()
+            }
+
+            setTimeout(() => {
+                map.toolTip.setContent('我是修改后的提示内容')
+            }, 3000)
         }
     </script>
 </body>

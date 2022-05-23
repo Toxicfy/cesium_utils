@@ -3,7 +3,7 @@ import * as Cesium from 'cesium'
 import CreateGeometry from './createGeometry'
 import Layer from './layer/index'
 
-import CreateToolTip from './createToolTips'
+import ToolTip from './ToolTips'
 import './assets/common.css'
 
 /**
@@ -12,7 +12,7 @@ import './assets/common.css'
 class Map extends Cesium.Viewer {
   createGeometry: CreateGeometry
   layer: Layer
-  toolTip: CreateToolTip
+  toolTip: ToolTip
   earth: any
 
   constructor (container = 'map-container', options: Cesium.Viewer.ConstructorOptions = {}) {
@@ -31,7 +31,7 @@ class Map extends Cesium.Viewer {
   _initCustomProperty () {
     this.createGeometry = new CreateGeometry(this) // geometry entity 方法集合
     this.layer = new Layer(this)
-    this.toolTip = new CreateToolTip()
+    this.toolTip = new ToolTip()
   }
 
   // 获取资源目录地址
