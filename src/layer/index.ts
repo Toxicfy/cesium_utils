@@ -1,24 +1,32 @@
 import * as Cesium from 'cesium'
 import BaseLayer from './BaseLayer'
 import TilesetLayer from './TilesetLayer'
+import WmsLayer from './WmsLayer'
 import layerType from './layerType'
+import { sourceType } from './layer'
 
 class Layer {
   protected viewer: Cesium.Viewer
-  private TilesetLayer: object
 
   constructor (viewer: Cesium.Viewer) {
     this.viewer = viewer
-    this.TilesetLayer = TilesetLayer
   }
 
-  addLayer (layer: BaseLayer): BaseLayer {
+  get TileSetLayer () {
+    return TilesetLayer
+  }
+
+  get WmsLayer () {
+    return WmsLayer
+  }
+
+  addLayer (layer: BaseLayer): sourceType {
     switch (layer?.type) {
       case layerType.TILESET_LAYER : { // 加载 tilesetLayer
         (layer as TilesetLayer).readyPromise.then(() => {
           this.viewer.scene.primitives.add(layer._source)
         })
-        return layer
+        return layer._source
       }
 
       default :
