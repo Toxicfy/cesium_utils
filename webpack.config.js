@@ -1,5 +1,6 @@
 const path = require('path')
 const webpack = require('webpack')
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 // const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 module.exports = {
@@ -21,7 +22,8 @@ module.exports = {
     ]
   },
   plugins: [
-    new webpack.ProgressPlugin({})
+    new webpack.ProgressPlugin({}),
+    new BundleAnalyzerPlugin({})
     // new CleanWebpackPlugin()
   ],
   resolve: {
@@ -31,6 +33,10 @@ module.exports = {
     },
     fallback: {
       path: require.resolve('path-browserify')
+    }
+  },
+  optimization: {
+    splitChunks: {
     }
   }
 }

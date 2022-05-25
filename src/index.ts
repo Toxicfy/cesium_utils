@@ -1,10 +1,10 @@
-import { defaultViewerOptions } from './config'
 import * as Cesium from 'cesium'
+import './assets/common.css'
 import CreateGeometry from './createGeometry'
 import Layer from './layer/index'
-
 import ToolTip from './ToolTips'
-import './assets/common.css'
+import Analysis from './analysis'
+import { defaultViewerOptions } from './config'
 
 /**
  * Main Entry
@@ -13,6 +13,7 @@ class Map extends Cesium.Viewer {
   createGeometry: CreateGeometry
   layer: Layer
   toolTip: ToolTip
+  analysis: Analysis
   earth: any
 
   constructor (container = 'map-container', options: Cesium.Viewer.ConstructorOptions = {}) {
@@ -32,6 +33,7 @@ class Map extends Cesium.Viewer {
     this.createGeometry = new CreateGeometry(this) // geometry entity 方法集合
     this.layer = new Layer(this)
     this.toolTip = new ToolTip()
+    this.analysis = new Analysis(this)
   }
 
   // 获取资源目录地址
