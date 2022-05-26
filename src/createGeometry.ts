@@ -1,8 +1,15 @@
 import * as Cesium from 'cesium'
 
+interface IPointOptions {
+  position: Cesium.Cartesian3
+  color?: Cesium.Color
+  pixelSize?: number
+  layer?: Cesium.EntityCollection
+}
+
 export default class CreateGeometry {
   private viewer: Cesium.Viewer
-  private pointArr: Cesium.Cartesian3[]
+  private readonly pointArr: Cesium.Cartesian3[]
 
   constructor (viewer: Cesium.Viewer) {
     this.viewer = viewer
@@ -11,13 +18,11 @@ export default class CreateGeometry {
 
   /**
    * 添加点
-   * @param position 坐标信息
-   * @param color 颜色
-   * @param pixelSize 大小
-   * @param layer 添加到的图层
-   * @returns 点对象
+   * @param options
+   * @returns
    */
-  addPoint (position: Cesium.Cartesian3, color = Cesium.Color.DODGERBLUE, pixelSize = 8, layer = this.viewer.entities) {
+  addPoint (options: IPointOptions): Cesium.Entity {
+    const { position, color = Cesium.Color.DODGERBLUE, pixelSize = 10, layer = this.viewer.entities } = options
     this.pointArr.push(position)
 
     return layer.add({
@@ -81,6 +86,10 @@ export default class CreateGeometry {
     }
 
     return [line, label]
+  }
+
+  addRectAngle (position) {
+    console.log(position)
   }
 
   /**
