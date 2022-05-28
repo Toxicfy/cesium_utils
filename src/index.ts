@@ -4,6 +4,7 @@ import CreateGeometry from './createGeometry'
 import Layer from './layer/index'
 import ToolTip from './ToolTips'
 import Analysis from './analysis'
+import Tool from './tool'
 import { defaultViewerOptions } from './config'
 
 /**
@@ -13,6 +14,7 @@ class Map extends Cesium.Viewer {
   createGeometry: CreateGeometry
   layer: Layer
   toolTip: ToolTip
+  tool: Tool
   analysis: Analysis
   earth: any
 
@@ -34,6 +36,24 @@ class Map extends Cesium.Viewer {
     this.layer = new Layer(this)
     this.toolTip = new ToolTip()
     this.analysis = new Analysis(this)
+    this.tool = new Tool(this)
+  }
+
+  // 通过视口坐标获取三维坐标 (已有直接拾取到坐标 + entity + primitive)，TODO：需要添加 Cesium3DTileset 与 Cesium3DTileFeature
+  _pickPositionByWindowPosition (position): Cesium.Cartesian3 {
+    const result = this.scene.pick(position) || this.camera.pickEllipsoid(position)
+
+    if (result instanceof Cesium.Cartesian3) {
+      return result
+    }
+
+    if (result?.id instanceof Cesium.Entity) {
+      return result.id.position.getValue(new Cesium.JulianDate())
+    }
+
+    if (result?.primitive) {
+      return result.primitive.position
+    }
   }
 
   // 获取资源目录地址

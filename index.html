@@ -35,7 +35,8 @@
     <script src="./dist/main.min.js"></script>
     <div id="map-container"></div>
     <div class="btn-container">
-        <button>加载 tileset</button>
+        <button class="btn">加载 tileset</button>
+        <button class="btn" onclick="handleDraw()">绘制 矩形</button>
     </div>
 
     <script>
@@ -73,7 +74,11 @@
             }, 3000)
         }
 
-        {
+        const drawTool = new map.tool.DrawTool()
+        map.tool.addTool(drawTool)
+        
+        const handleDraw = () => {
+            drawTool.start('Rectangle')
         }
     </script>
 </body>

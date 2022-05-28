@@ -1,13 +1,13 @@
 import * as Cesium from 'cesium'
 
-interface IPointOptions {
+interface IAddPointOptions {
   position: Cesium.Cartesian3
   color?: Cesium.Color
   pixelSize?: number
   layer?: Cesium.EntityCollection
 }
 
-interface ILineOptions {
+interface IAddLineOptions {
   positions: Cesium.Cartesian3[] | Cesium.CallbackProperty
   color?: Cesium.Color
   width?: number
@@ -15,7 +15,7 @@ interface ILineOptions {
   layer?: Cesium.EntityCollection
 }
 
-interface IRectAngleOptions {
+interface IAddRectAngleOptions {
   positions: Cesium.Cartesian3[] | Cesium.CallbackProperty
   layer?: Cesium.EntityCollection
 }
@@ -33,11 +33,11 @@ export default class CreateGeometry {
     if (positions instanceof Array) {
       return positions
     } else {
-      return positions.getValue(new Cesium.JulianDate())
+      return positions?.getValue(new Cesium.JulianDate(0))
     }
   }
 
-  addPoint (options: IPointOptions): Cesium.Entity {
+  addPoint (options: IAddPointOptions): Cesium.Entity {
     const { position, color = Cesium.Color.DODGERBLUE, pixelSize = 10, layer = this.viewer.entities } = options
     this.pointArr.push(position)
 
@@ -50,7 +50,7 @@ export default class CreateGeometry {
     })
   }
 
-  addLine (lineOptions: ILineOptions): Cesium.Entity|Cesium.Entity[] {
+  addLine (lineOptions: IAddLineOptions): Cesium.Entity|Cesium.Entity[] {
     const { positions, color = Cesium.Color.DODGERBLUE, width = 5, showDistance = false, layer = this.viewer.entities } = lineOptions
     const lineEntity = layer.add({
       polyline: {
@@ -60,9 +60,9 @@ export default class CreateGeometry {
       }
     })
 
-    if (!showDistance) return lineEntity // 不展示长度信息，直接返回
+    if (!showDistance) return lineEntity
 
-    // 循环计算每段线段长度
+    // 展示长度信息
     const result = []
     result.push(lineEntity)
     const positionArr = this._getPositionValue(positions)
@@ -87,15 +87,9 @@ export default class CreateGeometry {
     return result
   }
 
-  addRectAngle (rectangleOption: IRectAngleOptions): Cesium.Entity {
+  addRectAngle (rectangleOption: IAddRectAngleOptions): Cesium.Entity {
     const { positions, layer = this.viewer.entities } = rectangleOption
-
-    let positionArr: Cesium.Cartesian3[]
-    if (positions instanceof Array) {
-      positionArr = positions
-    } else {
-      positionArr = positions.getValue(new Cesium.JulianDate())
-    }
+    const positionArr = this._getPositionValue(positions)
 
     return layer.add({
       name: 'rectangle',
@@ -109,7 +103,7 @@ export default class CreateGeometry {
   }
 
   // 计算点之间的空间距离
-  getDistance (first, last): number {
+  getDistance (first: Cesium.Cartesian3, last: Cesium.Cartesian3): number {
     // 测地线，空间中两个位置的 “最短距离”
     const geodesic = new Cesium.EllipsoidGeodesic()
     const pointOneGraphic = Cesium.Cartographic.fromCartesian(first)
