@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <!-- <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet"> -->
     <link rel="stylesheet" href="./lib/Widgets/widgets.css">
     <style>
         html,
@@ -17,28 +18,44 @@
             height: 100%;
             width: 100%;
         }
+
+        .btn-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+
+        .btn {
+            padding: 2px 5px;
+        }
     </style>
 </head>
 
 <body>
     <script src="./dist/main.min.js"></script>
     <div id="map-container"></div>
+    <div class="btn-container">
+        <button>加载 tileset</button>
+    </div>
 
     <script>
         Map.setBaseUrl('./lib')
         const map = new Map('map-container', {})
 
-        // 加载 tileset 并进行数据贴地
-        {
+        // 加载 tileset并进行贴地
+        const handleLoadTileset = () => {
             const tilesetLayer = new map.layer.TilesetLayer("https://earthsdk.com/v/last/Apps/assets/dayanta/tileset.json")
             map.layer.addLayer(tilesetLayer)
-
             tilesetLayer.clampToGround()
             map.zoomTo(tilesetLayer._source)
+
+            const removeLayer = () => {
+                map.layer.removeLayer(tilesetLayer)
+            }
         }
 
-        // 操作 toolTip
-        {
+        // 操作 tooltip
+        const handleToolTip = () => {
             const handler = new map.earth.ScreenSpaceEventHandler(map.canvas)
             map.toolTip.setContent('这是一个鼠标提示')
             handler.setInputAction(e => {
@@ -54,6 +71,9 @@
             setTimeout(() => {
                 map.toolTip.setContent('我是修改后的提示内容')
             }, 3000)
+        }
+
+        {
         }
     </script>
 </body>

@@ -44,9 +44,10 @@ class DrawTool extends Tool {
           const callbackProperty = new Cesium.CallbackProperty(() => {
             return this._positionCollection
           }, false)
-          this.viewer.createGeometry.addRectAngle({
-            position: callbackProperty
-          })
+          this.viewer.createGeometry.addRectAngle(
+            callbackProperty,
+            this.drawLayer.entities
+          )
           break
         }
         default:
@@ -61,6 +62,10 @@ class DrawTool extends Tool {
       this._positionCollection.pop()
       this._positionCollection.push(position)
     }
+  }
+
+  _onRightClick (pos: Cesium.ScreenSpaceEventHandler.PositionedEvent) {
+    // const position =
   }
 }
 export default DrawTool
