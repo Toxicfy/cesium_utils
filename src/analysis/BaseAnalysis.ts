@@ -14,6 +14,10 @@ class BaseAnalysis {
   // 分析子类自己实现对应的逻辑
   init (viewer: Cesium.Viewer) {
   }
+
+  // 分析子类自己实现对应的逻辑
+  destroy () {
+  }
 }
 
 export default BaseAnalysis

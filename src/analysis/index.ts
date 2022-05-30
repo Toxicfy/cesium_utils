@@ -22,6 +22,10 @@ class Analysis {
     analysis.init(this.viewer)
   }
 
+  removeAnalysis (analysis: BaseAnalysis) {
+    analysis.destroy()
+  }
+
   get currentAnalysis (): BaseAnalysis {
     if (this.analysisCollection.length > 0) {
       return this.analysisCollection[this.analysisCollection.length - 1]
