@@ -23,6 +23,7 @@ class Analysis {
   }
 
   removeAnalysis (analysis: BaseAnalysis) {
+    this.analysisCollection.splice(this.analysisCollection.indexOf(analysis), 1)
     analysis.destroy()
   }
 
