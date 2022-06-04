@@ -13,7 +13,7 @@ class Slope extends BaseAnalysis {
   constructor () {
     super()
     this.handler = null
-    this.splitCount = 50
+    this.splitCount = 20
 
     this._slopePrimitives = new Cesium.PrimitiveCollection()
 
@@ -44,6 +44,11 @@ class Slope extends BaseAnalysis {
     this.viewer.scene.primitives.add(this._slopePrimitives)
   }
 
+  start (rectEntity: Cesium.Entity) {
+    const resultArr = this._splitRectArea(rectEntity)
+    this._computeSlopeAngle(resultArr)
+  }
+
   // 矩形区域划分为 count * count 个小区域
   _splitRectArea (rectEntity: Cesium.Entity, count = this.splitCount) {
     this._isFinishComputed = false
@@ -52,17 +57,35 @@ class Slope extends BaseAnalysis {
     const resultArr = []
     for (let i = 0; i < count; i++) {
       for (let j = 0; j < count; j++) {
-        const xLength1 = (x2 - x1) / count * i
-        const xLength2 = (x3 - x4) / count * i
-        const yLength1 = (y2 - y1) / count * j
-        const yLength2 = (y3 - y4) / count * j
-        const _x = x1 + xLength1 * i + (x4 + xLength2 - x1 - xLength1) / count * j
-        const _y = y1 + yLength1 * i + (y4 + yLength2 - y1 - yLength1) / count * j
-        resultArr.push(new Cesium.Cartesian3(_x, _y, 0))
+        const xLength1 = (x2 - x1) / count
+        const xLength2 = (x3 - x4) / count
+        const yLength1 = (y2 - y1) / count
+        const yLength2 = (y3 - y4) / count
+        // point_1
+        const _x1 = x1 + xLength1 * i + (x4 + xLength2 * i - x1 - xLength1 * i) / count * j
+        const _y1 = y1 + yLength1 * i + (y4 + yLength2 * i - y1 - yLength1 * i) / count * j
+        // point_2
+        const _x2 = x1 + xLength1 * (i + 1) + (x4 + xLength2 * (i + 1) - x1 - xLength1 * (i + 1)) / count * j
+        const _y2 = y1 + yLength1 * (i + 1) + (y4 + yLength2 * (i + 1) - y1 - yLength1 * (i + 1)) / count * j
+        // point_3
+        const _x3 = x4 + xLength2 * (i + 1) - (x4 + xLength2 * (i + 1) - x1 - xLength1 * (i + 1)) / count * (count - (j + 1))
+        const _y3 = y4 + yLength2 * (i + 1) - (y4 + yLength2 * (i + 1) - y1 - yLength1 * (i + 1)) / count * (count - (j + 1))
+        // point_4
+        const _x4 = x4 + xLength2 * i - (x4 + xLength2 * i - x1 - xLength1 * i) / count * (count - (j + 1))
+        const _y4 = y4 + yLength2 * i - (y4 + yLength2 * i - y1 - yLength1 * i) / count * (count - (j + 1))
+
+        resultArr.push(
+          Cesium.Cartographic.fromDegrees(_x1, _y1, 0),
+          Cesium.Cartographic.fromDegrees(_x2, _y2, 0),
+          Cesium.Cartographic.fromDegrees(_x3, _y3, 0),
+          Cesium.Cartographic.fromDegrees(_x4, _y4, 0)
+        )
       }
     }
+    return resultArr
   }
 
+  // 计算坡度值
   _computeSlopeAngle (linePositions: Cesium.Cartographic[]) {
     // 通过地形的高度更新集合
     Cesium.sampleTerrainMostDetailed(this.viewer.terrainProvider, linePositions).then(positions => {
@@ -77,8 +100,8 @@ class Slope extends BaseAnalysis {
         return Math.asin(h / s) * 180 / Math.PI
       }
       // 不同的坡度展示的颜色配置
-      const slopeDisplayData = []
       let slopeColor = ''
+      const rectAnglePrimitiveCollection = []
 
       for (let k = 0; k < positions.length / 8; k++) {
         const slope1 = _calcSlope(positions[m], positions[m + 4])
@@ -107,37 +130,37 @@ class Slope extends BaseAnalysis {
           )
         }
         // 判断 slope 的范围区间并设置颜色及统计该范围的个数
-        for (let i = 0; i < slopeDisplayData.length; i++) {
-          if (slope >= slopeDisplayData[i].range[0] && slope < slopeDisplayData[i].range[1]) {
-            slopeColor = slopeDisplayData[i].color
-            slopeDisplayData[i].count++
+        for (let i = 0; i < this._slopeDisplayData.length; i++) {
+          if (slope >= this._slopeDisplayData[i].range[0] && slope < this._slopeDisplayData[i].range[1]) {
+            slopeColor = this._slopeDisplayData[i].color
+            this._slopeDisplayData[i].count++
             break
           }
         }
-
-        // 绘制箭头 primitive 表示坡向方向;
-        const linePrimitive = this._createPolylinePrimitive(arrowLinePositions)
         // 依据slopeColor，绘制矩形 primitive 表面坡度
-        const rectAnglePrimitive = this._createRectAnglePrimitive([
+        rectAnglePrimitiveCollection.push(this._createRectAnglePrimitive([
           Cesium.Math.toDegrees(positions[m].longitude),
           Cesium.Math.toDegrees(positions[m].latitude),
           Cesium.Math.toDegrees(positions[m + 4].longitude),
           Cesium.Math.toDegrees(positions[m + 4].latitude)
-        ], slopeColor)
-
+        ], slopeColor))
+        // 绘制箭头 primitive 表示坡向方向;
+        const linePrimitive = this._createPolylinePrimitive(arrowLinePositions)
         this._slopePrimitives.add(linePrimitive)
-        this._slopePrimitives.add(rectAnglePrimitive)
-
         m += 8
       }
 
       this._isFinishComputed = true
+      this._slopePrimitives.add(new Cesium.GroundPrimitive({
+        geometryInstances: rectAnglePrimitiveCollection,
+        appearance: new Cesium.PerInstanceColorAppearance({})
+      }))
+      console.log(this._slopePrimitives)
       // TODO: removeAll drawTool Area
-
-      console.log(slopeColor)
     })
   }
 
+  // 获取坐标点
   _getCoordinates (rectEntity) {
     const coordinates = rectEntity.rectangle.coordinates.getValue(new Cesium.JulianDate())
     // 转换成角度
@@ -150,27 +173,27 @@ class Slope extends BaseAnalysis {
   }
 
   _createRectAnglePrimitive (position: number[], color: string) {
-    return new Cesium.GroundPrimitive({
-      geometryInstances: new Cesium.GeometryInstance({
-        geometry: new Cesium.RectangleGeometry({
-          rectangle: Cesium.Rectangle.fromDegrees(
-            ...position
-          ),
-          vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT
-        }),
-        attributes: {
-          color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromCssColorString(color))
-        }
-      })
-
+    return new Cesium.GeometryInstance({
+      geometry: new Cesium.RectangleGeometry({
+        rectangle: Cesium.Rectangle.fromDegrees(
+          position[0],
+          position[1],
+          position[2],
+          position[3]
+        ),
+        vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT
+      }),
+      attributes: {
+        color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromCssColorString(color))
+      }
     })
   }
 
-  _createPolylinePrimitive (positions: Cesium.Cartesian3[]) {
+  _createPolylinePrimitive (positions: any[]) {
     return new Cesium.GroundPolylinePrimitive({
       geometryInstances: new Cesium.GeometryInstance({
         geometry: new Cesium.GroundPolylineGeometry({
-          positions,
+          positions: Cesium.Cartesian3.fromDegreesArray(positions),
           width: 10
         }),
         attributes: {

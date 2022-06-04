@@ -42,6 +42,8 @@
     <script>
         Map.setBaseUrl('./lib')
         const map = new Map('map-container', {})
+        map.terrainProvider = map.earth.createWorldTerrain()
+        map.scene.globe.depthTestAgainstTerrain = true
 
         // 加载 tileset并进行贴地
         const handleLoadTileset = () => {
@@ -76,9 +78,14 @@
 
         const drawTool = new map.tool.DrawTool()
         map.tool.addTool(drawTool)
-        
+
         const handleDraw = () => {
-            drawTool.start('Rectangle')
+            drawTool.start('Rectangle', (entity) => {
+                const slope = new map.analysis.Slope()
+                map.analysis.addAnalysis(slope)
+
+                slope.start(entity)
+            })
         }
     </script>
 </body>

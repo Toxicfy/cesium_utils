@@ -7,11 +7,14 @@ class DrawTool {
   private drawType: string
   private viewer: Map
   private readonly _positionCollection: Cesium.Cartesian3[]
+  callback: Function
+  currentEntity: Cesium.Entity
 
   constructor () {
     this.drawLayer = null
     this.handler = null
     this.drawType = 'Rectangle'
+    this.currentEntity = null
     this._positionCollection = []
   }
 
@@ -46,7 +49,7 @@ class DrawTool {
           const callbackProperty = new Cesium.CallbackProperty(() => {
             return this._positionCollection
           }, false)
-          this.viewer.createGeometry.addRectAngle({
+          this.currentEntity = this.viewer.createGeometry.addRectAngle({
             positions: callbackProperty,
             layer: this.drawLayer.entities
           })
@@ -71,10 +74,12 @@ class DrawTool {
     this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK)
     this.handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE)
     this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK)
+    this.callback && this.callback(this.currentEntity)
   }
 
-  start (type: string) {
+  start (type: string, callback: Function) {
     this.drawType = type
+    this.callback = callback
     this.drawLayer = new Cesium.CustomDataSource('drawLayer')
     this.viewer.dataSources.add(this.drawLayer)
 
