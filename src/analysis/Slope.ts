@@ -52,34 +52,41 @@ class Slope extends BaseAnalysis {
   // 矩形区域划分为 count * count 个小区域
   _splitRectArea (rectEntity: Cesium.Entity, count = this.splitCount) {
     this._isFinishComputed = false
-
-    const [x1, y1, x2, y2, x3, y3, x4, y4] = this._getCoordinates(rectEntity)
+    const [_x1, _y1, _z1, _x2, _y2, _z2, _x3, _y3, _z3, _x4, _y4, _z4] = this._getCoordinates(rectEntity)
     const resultArr = []
-    for (let i = 0; i < count; i++) {
-      for (let j = 0; j < count; j++) {
-        const xLength1 = (x2 - x1) / count
-        const xLength2 = (x3 - x4) / count
-        const yLength1 = (y2 - y1) / count
-        const yLength2 = (y3 - y4) / count
-        // point_1
-        const _x1 = x1 + xLength1 * i + (x4 + xLength2 * i - x1 - xLength1 * i) / count * j
-        const _y1 = y1 + yLength1 * i + (y4 + yLength2 * i - y1 - yLength1 * i) / count * j
-        // point_2
-        const _x2 = x1 + xLength1 * (i + 1) + (x4 + xLength2 * (i + 1) - x1 - xLength1 * (i + 1)) / count * j
-        const _y2 = y1 + yLength1 * (i + 1) + (y4 + yLength2 * (i + 1) - y1 - yLength1 * (i + 1)) / count * j
-        // point_3
-        const _x3 = x4 + xLength2 * (i + 1) - (x4 + xLength2 * (i + 1) - x1 - xLength1 * (i + 1)) / count * (count - (j + 1))
-        const _y3 = y4 + yLength2 * (i + 1) - (y4 + yLength2 * (i + 1) - y1 - yLength1 * (i + 1)) / count * (count - (j + 1))
-        // point_4
-        const _x4 = x4 + xLength2 * i - (x4 + xLength2 * i - x1 - xLength1 * i) / count * (count - (j + 1))
-        const _y4 = y4 + yLength2 * i - (y4 + yLength2 * i - y1 - yLength1 * i) / count * (count - (j + 1))
-
-        resultArr.push(
-          Cesium.Cartographic.fromDegrees(_x1, _y1, 0),
-          Cesium.Cartographic.fromDegrees(_x2, _y2, 0),
-          Cesium.Cartographic.fromDegrees(_x3, _y3, 0),
-          Cesium.Cartographic.fromDegrees(_x4, _y4, 0)
+    for (let j = 0; j < count; j++) {
+      for (let i = 0; i < count; i++) {
+        const hierarchy = []
+        // 分割成小面，切分经纬度
+        hierarchy.push(new Cesium.Cartesian3(
+          _x1 + (_x2 - _x1) / count * i + (_x4 + (_x3 - _x4) / count * (i) - _x1 - (_x2 - _x1) / count * i) / count * j,
+          _y1 + (_y2 - _y1) / count * i + (_y4 + (_y3 - _y4) / count * (i) - _y1 - (_y2 - _y1) / count * i) / count * j,
+          _z1 + (_z2 - _z1) / count * i + (_z4 + (_z3 - _z4) / count * (i) - _z1 - (_z2 - _z1) / count * i) / count * j)
         )
+        hierarchy.push(new Cesium.Cartesian3(
+          _x1 + (_x2 - _x1) / count * (i + 1) + (_x4 + (_x3 - _x4) / count * (i + 1) - _x1 - (_x2 - _x1) / count * (i + 1)) / count * j,
+          _y1 + (_y2 - _y1) / count * (i + 1) + (_y4 + (_y3 - _y4) / count * (i + 1) - _y1 - (_y2 - _y1) / count * (i + 1)) / count * j,
+          _z1 + (_z2 - _z1) / count * (i + 1) + (_z4 + (_z3 - _z4) / count * (i + 1) - _z1 - (_z2 - _z1) / count * (i + 1)) / count * j)
+        )
+        hierarchy.push(new Cesium.Cartesian3(
+          _x4 + (_x3 - _x4) / count * (i + 1) - (_x4 + (_x3 - _x4) / count * (i + 1) - _x1 - (_x2 - _x1) / count * (i + 1)) / count * (count - (j + 1)),
+          _y4 + (_y3 - _y4) / count * (i + 1) - (_y4 + (_y3 - _y4) / count * (i + 1) - _y1 - (_y2 - _y1) / count * (i + 1)) / count * (count - (j + 1)),
+          _z4 + (_z3 - _z4) / count * (i + 1) - (_z4 + (_z3 - _z4) / count * (i + 1) - _z1 - (_z2 - _z1) / count * (i + 1)) / count * (count - (j + 1)))
+        )
+        hierarchy.push(new Cesium.Cartesian3(
+          _x4 + (_x3 - _x4) / count * i - (_x4 + (_x3 - _x4) / count * (i) - _x1 - (_x2 - _x1) / count * i) / count * (count - (j + 1)),
+          _y4 + (_y3 - _y4) / count * i - (_y4 + (_y3 - _y4) / count * (i) - _y1 - (_y2 - _y1) / count * i) / count * (count - (j + 1)),
+          _z4 + (_z3 - _z4) / count * i - (_z4 + (_z3 - _z4) / count * (i) - _z1 - (_z2 - _z1) / count * i) / count * (count - (j + 1)))
+        )
+        // 取出面的8个点坐标，拿点坐标去求高度值
+        resultArr.push(Cesium.Cartographic.fromDegrees(hierarchy[0].x, hierarchy[0].y))
+        resultArr.push(Cesium.Cartographic.fromDegrees((hierarchy[0].x + hierarchy[1].x) / 2, (hierarchy[0].y + hierarchy[1].y) / 2))
+        resultArr.push(Cesium.Cartographic.fromDegrees(hierarchy[1].x, hierarchy[1].y))
+        resultArr.push(Cesium.Cartographic.fromDegrees((hierarchy[1].x + hierarchy[2].x) / 2, (hierarchy[1].y + hierarchy[2].y) / 2))
+        resultArr.push(Cesium.Cartographic.fromDegrees(hierarchy[2].x, hierarchy[2].y))
+        resultArr.push(Cesium.Cartographic.fromDegrees((hierarchy[2].x + hierarchy[3].x) / 2, (hierarchy[2].y + hierarchy[3].y) / 2))
+        resultArr.push(Cesium.Cartographic.fromDegrees(hierarchy[3].x, hierarchy[3].y))
+        resultArr.push(Cesium.Cartographic.fromDegrees((hierarchy[3].x + hierarchy[0].x) / 2, (hierarchy[3].y + hierarchy[0].y) / 2))
       }
     }
     return resultArr
@@ -97,11 +104,11 @@ class Slope extends BaseAnalysis {
           Cesium.Cartesian3.fromDegrees(pos1.latitude, pos1.latitude, pos1.height),
           Cesium.Cartesian3.fromDegrees(pos2.latitude, pos2.latitude, pos2.height)
         )
-        return Math.asin(h / s) * 180 / Math.PI
+        const result = Math.atan(h / s) * 180 / Math.PI
+        return isNaN(result) ? 0 : result
       }
       // 不同的坡度展示的颜色配置
       let slopeColor = ''
-      const rectAnglePrimitiveCollection = []
 
       for (let k = 0; k < positions.length / 8; k++) {
         const slope1 = _calcSlope(positions[m], positions[m + 4])
@@ -138,12 +145,18 @@ class Slope extends BaseAnalysis {
           }
         }
         // 依据slopeColor，绘制矩形 primitive 表面坡度
-        rectAnglePrimitiveCollection.push(this._createRectAnglePrimitive([
+        const instance = (this._createRectAngleInstance([
           Cesium.Math.toDegrees(positions[m].longitude),
           Cesium.Math.toDegrees(positions[m].latitude),
           Cesium.Math.toDegrees(positions[m + 4].longitude),
           Cesium.Math.toDegrees(positions[m + 4].latitude)
         ], slopeColor))
+
+        this._slopePrimitives.add(new Cesium.GroundPrimitive({
+          geometryInstances: instance,
+          appearance: new Cesium.PerInstanceColorAppearance()
+        }))
+
         // 绘制箭头 primitive 表示坡向方向;
         const linePrimitive = this._createPolylinePrimitive(arrowLinePositions)
         this._slopePrimitives.add(linePrimitive)
@@ -151,12 +164,6 @@ class Slope extends BaseAnalysis {
       }
 
       this._isFinishComputed = true
-      this._slopePrimitives.add(new Cesium.GroundPrimitive({
-        geometryInstances: rectAnglePrimitiveCollection,
-        appearance: new Cesium.PerInstanceColorAppearance({})
-      }))
-      console.log(this._slopePrimitives)
-      // TODO: removeAll drawTool Area
     })
   }
 
@@ -169,10 +176,12 @@ class Slope extends BaseAnalysis {
     const south = Cesium.Math.toDegrees(coordinates.south)
     const north = Cesium.Math.toDegrees(coordinates.north)
 
-    return [west, south, east, south, east, north, west, north]
+    return [west, south, 0, east, south, 0, east, north, 0, west, north, 0]
   }
 
-  _createRectAnglePrimitive (position: number[], color: string) {
+  _createRectAngleInstance (position: number[], color: string) {
+    console.log(color, 'color')
+
     return new Cesium.GeometryInstance({
       geometry: new Cesium.RectangleGeometry({
         rectangle: Cesium.Rectangle.fromDegrees(
