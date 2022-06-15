@@ -23,7 +23,7 @@ class DrawTool {
   }
 
   _onLeftClick (ev: Cesium.ScreenSpaceEventHandler.PositionedEvent) {
-    const position = this.viewer._pickPositionByWindowPosition(ev.position)
+    const position = this.viewer.pickPositionByWindowPosition(ev.position)
 
     if (position && Cesium.defined(position)) {
       this._positionCollection.push(position)
@@ -62,7 +62,7 @@ class DrawTool {
   }
 
   _onMouseMove (ev: Cesium.ScreenSpaceEventHandler.MotionEvent) {
-    const position = this.viewer._pickPositionByWindowPosition(ev.endPosition)
+    const position = this.viewer.pickPositionByWindowPosition(ev.endPosition)
 
     if (this._positionCollection.length > 1 && Cesium.defined(position)) {
       this._positionCollection.pop()

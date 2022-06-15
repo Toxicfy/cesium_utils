@@ -35,6 +35,3 @@ class Analysis {
 }
 
 export default Analysis
-
-// const slopeAnalysis = map.analysis.Slope()
-// map.addAnalysis(slopeTool)

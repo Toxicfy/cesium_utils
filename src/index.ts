@@ -6,6 +6,7 @@ import ToolTip from './ToolTips'
 import Analysis from './analysis'
 import Tool from './tool'
 import { defaultViewerOptions } from './config'
+import Util from './utils'
 
 /**
  * Main Entry
@@ -16,6 +17,7 @@ class Map extends Cesium.Viewer {
   toolTip: ToolTip
   tool: Tool
   analysis: Analysis
+  util: Util
   earth: any
 
   constructor (container = 'map-container', options: Cesium.Viewer.ConstructorOptions = {}) {
@@ -37,23 +39,12 @@ class Map extends Cesium.Viewer {
     this.toolTip = new ToolTip()
     this.analysis = new Analysis(this)
     this.tool = new Tool(this)
+    this.util = new Util(this)
   }
 
-  // 通过视口坐标获取三维坐标 (已有直接拾取到坐标 + entity + primitive)，TODO：需要添加 Cesium3DTileset 与 Cesium3DTileFeature
-  _pickPositionByWindowPosition (position): Cesium.Cartesian3 {
-    const result = this.scene.pick(position) || this.camera.pickEllipsoid(position)
-
-    if (result instanceof Cesium.Cartesian3) {
-      return result
-    }
-
-    if (result?.id instanceof Cesium.Entity) {
-      return result.id.position.getValue(new Cesium.JulianDate())
-    }
-
-    if (result?.primitive) {
-      return result.primitive.position
-    }
+  // 通过视口坐标获取三维坐标
+  pickPositionByWindowPosition (windowPosition: {x: number, y: number}) : Cesium.Cartesian3 | null {
+    return this.util.getCoordinationByWindowPosition(windowPosition)
   }
 
   // 获取资源目录地址
