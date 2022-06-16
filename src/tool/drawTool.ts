@@ -77,6 +77,11 @@ class DrawTool {
     this.callback && this.callback(this.currentEntity)
   }
 
+  /**
+   * 开始绘制
+   * @param type {string} 绘制类型
+   * @param callback {Function} 绘制完成回调
+   */
   start (type: string, callback: Function) {
     this.drawType = type
     this.callback = callback
@@ -89,6 +94,9 @@ class DrawTool {
     this.handler.setInputAction(this._onRightClick.bind(this), Cesium.ScreenSpaceEventType.RIGHT_CLICK)
   }
 
+  /**
+   * 销毁绘制工具
+   */
   destroy () {
     this.handler && this.handler.destroy()
     this.drawLayer && this.drawLayer.entities.removeAll()

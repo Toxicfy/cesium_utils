@@ -30,7 +30,7 @@ class ToolTip {
 
   /**
    * 展示 toolTip
-   * @param position 展示位置
+   * @param position {x: number, y: number} 窗口坐标
    */
   show (position: windowPosition) {
     this._updatePosition(position) // 更新位置

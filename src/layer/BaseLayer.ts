@@ -13,6 +13,10 @@ class BaseLayer {
   get type () : string {
     return this._layerType
   }
+
+  get source () : sourceType {
+    return this._source
+  }
 }
 
 export default BaseLayer

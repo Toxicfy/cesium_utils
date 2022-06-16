@@ -9,10 +9,11 @@ class Util {
     this.domUtil = domUtil
   }
 
-  createDom () {
-    return this.domUtil.createDom
-  }
-
+  /**
+   * 通过窗口坐标获取三维场景坐标
+   * @param windowPosition {x: number, y: number} 窗口坐标
+   * @returns {x: number, y: number} 三维场景坐标
+   */
   getCoordinationByWindowPosition (windowPosition: { x: number, y: number }): Cesium.Cartesian3 | null {
     if (!windowPosition) return null
     const pickPosition = new Cesium.Cartesian2(windowPosition.x, windowPosition.y)
